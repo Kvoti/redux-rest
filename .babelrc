@@ -1,0 +1,8 @@
+{
+    "optional": [
+        "es7.comprehensions",
+    	"es7.classProperties",
+	"es7.objectRestSpread",
+	"es7.decorators"
+    ]
+}
