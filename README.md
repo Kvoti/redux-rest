@@ -38,7 +38,7 @@ the API request either succeeds or fails, at which point the status is
 updated.
 
 The standard set of REST actions is available; list, retrieve, create,
-update, partialUpdate.
+update.
 
 ## TODO
 Add a `revert` action to revert optmistic changes if API request fails.

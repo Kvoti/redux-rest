@@ -1,7 +1,7 @@
 /**
 * Utility class to automatically create Redux reducers for REST API endpoints.
 */
-import { request } from 'superagent';
+import request from 'superagent';
 import itemStatus from './itemStatus';
 
 export default class Flux {
@@ -25,7 +25,7 @@ export default class Flux {
     }
 }
 
-class Endpoint {
+export class Endpoint {
     constructor (url) {
         this.url = url;
     }
@@ -34,24 +34,20 @@ class Endpoint {
         return request.get(this.url).query(params);
     }
     
-    retrieve (id, params) {
-        return get(this._getObjectURL(id)).query(params);
+    retrieve (id) {
+        return request.get(this._getObjectURL(id));
     }
     
     create (conf) {
-        return post(this.url).send(conf);
+        return request.post(this.url).send(conf);
     }
     
     update (id, conf) {
-        return put(this._getObjectURL(id)).send(conf);
-    }
-
-    partialUpdate (...args) {
-        return this.update(...args);
+        return request.put(this._getObjectURL(id)).send(conf);
     }
 
     _getObjectURL (id) {
-        return `${this.url}${id}/`;
+        return `${this.url}${id}`;
     }
         
 }
