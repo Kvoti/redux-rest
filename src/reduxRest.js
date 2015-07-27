@@ -1,7 +1,7 @@
 /**
 * Utility class to automatically create Redux reducers for REST API endpoints.
 */
-import { request } 'superagent';
+import { request } from 'superagent';
 import itemStatus from './itemStatus';
 
 export default class Flux {

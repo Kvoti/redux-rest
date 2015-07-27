@@ -4,7 +4,8 @@
   "description": "Automatically create Flux action constants, action creators and Redux reducers for your REST API",
   "main": "reduxRest.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+      "build": "scripts/build",
+      "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
