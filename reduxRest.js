@@ -137,7 +137,6 @@ class Reducer {
     }
     
     _reducer (state = [], action) {
-        console.log('got action', action);
         let item;
         if (action.type === this.actionTypes.create) {
             item = {...action.payload, status: itemStatus.pending, pendingID: action.pendingID};
@@ -153,7 +152,6 @@ class Reducer {
             return this._replaceItem(state, 'pendingID', action.pendingID, item);
 
         } else if (action.type === this.actionTypes.list_success) {
-            console.log('adding items', action.payload);
             return [...action.payload];
         }
         // TODO handle rest of actionTypes!
