@@ -1,40 +1,18 @@
 /**
-* 
-* Utility class to automatically create Flux stores for REST API endpoints.
-* 
-* Designed to be used with Redux.
-* 
-* E.g.
-* 
-*     let flux = new Flux({chatrooms: 'chat/rooms/'});
-* 
-* automatically creates a reducer that handles standard REST actions such as
-* create, list, retrieve.
-* 
-* Initialising redux is as simple as
-* 
-*     let redux = createRedux(flux.reducers);
-* 
-* Calling actions is as simple as
-* 
-*     flux.actionCreators.chatrooms.create(roomConf);
-* 
-* New objects are added to the state with a status of 'pending' until the API
-* request either succeeds or fails, at which point the status is updated.
-* 
+* Utility class to automatically create Redux reducers for REST API endpoints.
 */
 import { get, post, put } from '../../../js/request';
 import itemStatus from './itemStatus';
 
 export default class Flux {
-    constructor (tenant, APIConf) {
+    constructor (APIConf) {
         this.API = {};
         this.actionTypes = {};
         this.actionCreators = {};
         this.reducers = {};
         for (let endpointName in APIConf) {
             let url = APIConf[endpointName];
-            this.API[endpointName] = new Endpoint(tenant, url);
+            this.API[endpointName] = new Endpoint(url);
             this.actionTypes[endpointName] = new ActionTypes(endpointName);
             this.actionCreators[endpointName] = new ActionCreators(
                 endpointName,
@@ -48,8 +26,8 @@ export default class Flux {
 }
 
 class Endpoint {
-    constructor (tenant, url) {
-        this.url = this._getFullUrl(tenant, url);
+    constructor (url) {
+        this.url = url;
     }
 
     list (params) {
@@ -70,10 +48,6 @@ class Endpoint {
 
     partialUpdate (...args) {
         return this.update(...args);
-    }
-
-    _getFullUrl (tenant, url) {
-        return `/${tenant}/api/${url}`;
     }
 
     _getObjectURL (id) {
