@@ -52,7 +52,7 @@ export class Endpoint {
         
 }
 
-class ActionTypes {
+export class ActionTypes {
     constructor (endpointName) {
         this.endpointName = endpointName;
         ['list', 'retrieve', 'create', 'update'].forEach(action => {
