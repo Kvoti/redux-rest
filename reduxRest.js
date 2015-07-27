@@ -1,7 +1,7 @@
 /**
 * Utility class to automatically create Redux reducers for REST API endpoints.
 */
-import { get, post, put } from '../../../js/request';
+import { request } 'superagent';
 import itemStatus from './itemStatus';
 
 export default class Flux {
@@ -31,19 +31,19 @@ class Endpoint {
     }
 
     list (params) {
-        return get(this.url, params);
+        return request.get(this.url).query(params);
     }
     
     retrieve (id, params) {
-        return get(this._getObjectURL(id), params);
+        return get(this._getObjectURL(id)).query(params);
     }
     
     create (conf) {
-        return post(this.url, conf);
+        return post(this.url).send(conf);
     }
     
     update (id, conf) {
-        return put(this._getObjectURL(id), conf);
+        return put(this._getObjectURL(id)).send(conf);
     }
 
     partialUpdate (...args) {
@@ -89,11 +89,12 @@ class ActionCreators {
         return (dispatch) => {
             let pendingID = this._getPendingID();
             let call = APIRequest(payload)
-                .done(res => {
-                    dispatch(this._success(action, res, pendingID));
-                })
-                .fail((jqXHR, textStatus, error) => {
-                    dispatch(this._failure(action, textStatus, pendingID));
+                .end((err, res) => {
+                    if (err) {
+                        dispatch(this._failure(action, "error", pendingID));
+                    } else {
+                        dispatch(this._success(action, res, pendingID));
+                    }
                 })
             return dispatch(this._pending(action, payload, pendingID));
         }
