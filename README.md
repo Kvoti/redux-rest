@@ -9,29 +9,29 @@ TODO
 ## How to use
 Create an object witht the urls of your API endpoints. E.g.
 
-{{{js
+```js
 let myAPI = {
     users: '/api/users/',
 }	   
-}}}
+```
 
 Create a ```Flux``` instance.
 
-{{{js
+```js
 let flux = new Flux(myAPI);
-}}}
+```
 
 Initialise Redux.
 
-{{{js
+```js
 let redux = createRedux(flux.reducers);
-}}}
+```
 
 
 Calling actions is as simple as
-{{{js 
+```js 
 flux.actionCreators.users.create(userData);
-}}}
+```
 
 New objects are added to the state with a status of 'pending' until
 the API request either succeeds or fails, at which point the status is
