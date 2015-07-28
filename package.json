@@ -4,8 +4,8 @@
   "description": "Automatically create Flux action constants, action creators and Redux reducers for your REST API",
   "main": "lib/reduxRest.js",
   "scripts": {
-      "build": "scripts/build",
-      "test": "scripts/test"
+    "build": "scripts/build",
+    "test": "scripts/test"
   },
   "repository": {
     "type": "git",
@@ -27,12 +27,15 @@
     "babel": "^5.5.8",
     "babel-core": "5.6.15",
     "babel-loader": "^5.1.4",
+    "expect": "^1.8.0",
     "mocha": "^2.2.5",
     "react": "^0.13.0",
     "redux": "^0.12.0",
+    "sinon": "^1.15.4",
     "webpack": "^1.9.6"
   },
   "dependencies": {
+    "nock": "^2.9.1",
     "superagent": "^1.2.0"
   }
 }

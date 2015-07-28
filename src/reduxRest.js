@@ -72,7 +72,7 @@ export class ActionTypes {
     }
 }
 
-class ActionCreators {
+export class ActionCreators {
     constructor (endpointName, API, actionTypes) {
         this.actionTypes = actionTypes;
         this._pendingID = 0;
@@ -89,10 +89,11 @@ class ActionCreators {
                     if (err) {
                         dispatch(this._failure(action, "error", pendingID));
                     } else {
-                        dispatch(this._success(action, res, pendingID));
+                        dispatch(this._success(action, res.body, pendingID));
                     }
                 })
-            return dispatch(this._pending(action, payload, pendingID));
+            dispatch(this._pending(action, payload, pendingID));
+            return call;
         }
     }
 
