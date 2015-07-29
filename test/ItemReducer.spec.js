@@ -2,7 +2,7 @@ import expect from 'expect';
 
 import { ActionTypes, ItemReducer } from '../src/reduxRest';
 
-describe('Reducer', () => {
+describe('ItemReducer', () => {
     describe('reducer', () => {
 
         let actionTypes = new ActionTypes('endpoint');
