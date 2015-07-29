@@ -19,7 +19,9 @@ export default class Flux {
                 this.API[endpointName],
                 this.actionTypes[endpointName]
             );
-            this.reducers[endpointName] = new Reducer(
+            this.reducers[`${endpointName}_items`] = new ItemReducer(
+                this.actionTypes[endpointName]).getReducer();
+            this.reducers[`${endpointName}_collection`] = new CollectionReducer(
                 this.actionTypes[endpointName]).getReducer();
         }
     }
