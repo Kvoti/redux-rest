@@ -8,53 +8,80 @@ reducers for your REST API.
 npm install git://github.com/Kvoti/redux-rest.git
 ```
 
-## How to use
-
-Create an object witht the urls of your API endpoints. E.g.
-
+## Example
 ```js
-let myAPI = {
-    users: '/api/users/',
-}	   
+import React from 'react';
+import { connect, Provider } from 'redux/react';
+import { createRedux } from 'redux';
+import Flux from 'redux-rest';
+
+// Describe your API endpoints as key value pairs where the key is an
+// identifier and the value is the URL of the endpoint.
+const myAPI = {
+    users: '/api/users/'
+}
+
+// Create a Flux instance for your API. This automatically creates
+// action creators and reducers for each endpoint.
+const flux = new Flux(myAPI);
+
+// Initialise Redux
+const redux = createRedux(flux.reducers);
+
+// Connect your component to the Redux state
+@connect(state => {
+    // Each endpoint has an _items and _collection store. Here we only need
+    // the user items so we only pull out users_items.
+    users: state.users_items	       
+});
+class UserList extends React.component {
+
+    componentDidMount () {
+        // Request the list of users when this component mounts
+        this.props.dispatch(flux.actionCreators.users.list());
+    }
+
+    render () {
+        return (
+	    <ul>
+	        {this.props.users.map(user => <li>{user.username}</li>);
+            </ul>
+        );
+    }
+}
+
+export default class App extends React.Component {
+    render() {
+        return (
+            <Provider redux={redux}>
+                {() => {<UserList \>}
+            </Provider>
+        );
+    }
+}
 ```
 
-Create a ```Flux``` instance.
+## What is the Flux object?
+
+The Flux object encapsulates common patterns when dealing with REST APIs.
+
+When created with a description of your API you can call all the actions you'd
+expect and there are reducers that automatically handle those actions, including
+'pending', 'success' and 'failure' states.
 
 ```js
-let flux = new Flux(myAPI);
+import Flux from 'redux-rest';
+
+const myAPI = {
+    users: '/api/users/',
+}	   
+
+const flux = new Flux(myAPI);
 ```
 
 This creates a pair of reducers for each API endpoint; a _collection_
 reducer to handle actions at the collection level and and _item_
 reducer to handle actions on individual items.
-
-Initialise Redux.
-
-```js
-let redux = createRedux(flux.reducers);
-```
-
-Your components can then be hooked up to the Redux state in the usual
-way:
-
-```js
-import { connect } from redux/react;
-
-@connect(state => {
-    users: state.users_items	       
-});
-class MyContainerComponent extends React.component {
-
-    componentDidMount () {
-        this.props.dispatch(flux.actionCreators.users.list());
-    }
-
-    ...
-}
-```
-
-Note the ```state``` keys are ```<endpoint>_items``` and
-```<endpoint>_collection```.
 
     TODO not sure about the item/collection stuff. Needs a rethink.
 
@@ -63,9 +90,6 @@ Calling actions is as simple as
 ```js 
 flux.actionCreators.users.create(userData);
 ```
-
-In the example above we call the ```list``` action to load the list of
-users from the API when the component is mounted.
 
 ### Status of API requests
 
@@ -78,7 +102,7 @@ new object,
 flux.actionCreators.users.create({username: 'mark'});
 ```
 
-will add
+will add,
 
 ```js
 {
@@ -92,18 +116,25 @@ to the state.
     TODO what if 'status' is already a field of user?
 
 On completion of the request the status is updated to ```saved``` or
-```failed``` as appropriate.
+```failed``` as appropriate. E.g.
 
-### Actions
+```js
+{
+    username: 'mark',
+    status: 'saved'
+}
+```
+
+### Availale actions
 
 The standard set of REST actions is available; ```list```,
-```retrieve```, ```create```, ```update```.
+```retrieve```, ```create``` and ```update```.
 
 ## Development
 TODO
 
 ## TODO
 
-- add a `revert` action to revert optmistic changes if API request
+- add a `revert` action to revert optimistic changes if API request
 fails.
 - support APIs with custom endpoints
