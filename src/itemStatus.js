@@ -2,7 +2,7 @@
 const itemStatus = {
     pending: 'pending',
     saved: 'saved',
-    failed: 'failed',
+    failed: 'failed'
 };
 
 export default itemStatus;
