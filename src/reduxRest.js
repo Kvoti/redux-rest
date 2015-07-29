@@ -42,12 +42,16 @@ export class Endpoint {
         return request.post(this.url).send(conf);
     }
     
-    update (id, conf) {
+    update (conf, id) {
         return request.put(this._getObjectURL(id)).send(conf);
     }
 
     _getObjectURL (id) {
-        return `${this.url}${id}`;
+        let slash;
+        if (!this.url.endsWith('/')) {
+            slash = '/';
+        }
+        return `${this.url}${slash}${id}`;
     }
         
 }
@@ -81,10 +85,10 @@ export class ActionCreators {
         });
     }
 
-    _createAction (action, APIRequest, payload) {
+    _createAction (action, APIRequest, payload, objectID) {
         return (dispatch) => {
             let pendingID = this._getPendingID();
-            let call = APIRequest(payload)
+            let call = APIRequest(payload, objectID)
                 .end((err, res) => {
                     if (err) {
                         dispatch(this._failure(action, "error", pendingID));

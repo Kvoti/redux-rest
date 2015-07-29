@@ -5,11 +5,6 @@ import nock from 'nock';
 
 import { Endpoint, ActionTypes, ActionCreators } from '../src/reduxRest';
 
-const VERBS = {
-    list: 'get',
-    create: 'post',
-}
-
 describe('ActionCreators', () => {
     describe('constructor', () => {
         ['list', 'retrieve', 'create', 'update'].forEach(action => {
@@ -25,8 +20,63 @@ describe('ActionCreators', () => {
         });
     });
 
-    ['list', 'create'].forEach(actionType => {  // TODO is copy/paste clearer than forEach here?
-        describe(`${actionType}()`, () => {
+    let tests = [
+        {
+            actionType: 'list',
+            actionArgs: [],
+            expectedHTTPMethod: 'get',
+            expectedURL: '/endpoint',
+            expectedRequestBody: '',
+            response: [{id: 1}],
+            expectedPayload: {
+                pending: undefined,
+                success: [{id: 1}],
+                failure: 'error'
+            }
+        },
+        {
+            actionType: 'create',
+            actionArgs: [{id: 1}],
+            expectedHTTPMethod: 'post',
+            expectedURL: '/endpoint',
+            expectedRequestBody: {id: 1},
+            response: {id: 1},
+            expectedPayload: {
+                pending: {id: 1},
+                success: {id: 1},
+                failure: 'error'
+            }
+        },
+        {
+            actionType: 'retrieve',
+            actionArgs: [1],
+            expectedHTTPMethod: 'get',
+            expectedURL: '/endpoint/1',
+            expectedRequestBody: '',
+            response: {id: 1},
+            expectedPayload: {
+                pending: 1,
+                success: {id: 1},
+                failure: 'error'
+            }
+        },
+        {
+            actionType: 'update',
+            actionArgs: [{id:1, key: 'value'}, 1],
+            expectedHTTPMethod: 'put',
+            expectedURL: '/endpoint/1',
+            expectedRequestBody: {id:1, key: 'value'},
+            response: {id:1, key: 'value'},
+            expectedPayload: {
+                pending: {id:1, key: 'value'},
+                success: {id:1, key: 'value'},
+                failure: 'error'
+            }
+        },
+    ];
+
+    tests.forEach(test => {
+        describe(`${test.actionType}()`, () => {
             let actionCreators;
             let dispatch;
             
@@ -39,54 +89,89 @@ describe('ActionCreators', () => {
                 dispatch = sinon.stub();
             });
 
-            it(`should return a function that calls the ${actionType} API endpoint`, () => {
+            it(`should return a function that calls the ${test.actionType} API endpoint`, () => {
                 let scope = nock('http://example.com')
-                [VERBS[actionType]]('/endpoint')
+                [test.expectedHTTPMethod](test.expectedURL, test.expectedRequestBody)
                     .reply(200);
-                actionCreators[actionType]()(dispatch);
+                actionCreators[test.actionType](...test.actionArgs)(dispatch);
                 scope.done();
             });
 
-            it(`should return a function that dispatches a pending ${actionType} action`, () => {
+            it(`should return a function that dispatches a pending ${test.actionType} action`, () => {
                 let scope = nock('http://example.com')
-                [VERBS[actionType]]('/endpoint')
+                [test.expectedHTTPMethod](test.expectedURL, test.expectedRequestBody)
                     .reply(200);
-                actionCreators[actionType]()(dispatch);
+                actionCreators[test.actionType](...test.actionArgs)(dispatch);
                 scope.done();
                 sinon.assert.calledWith(
                     dispatch,
-                    {
-                        type: `endpoint_${actionType}`,
-                        payload: undefined,
-                        pendingID: 1
-                    }
+                    sinon.match({type: `endpoint_${test.actionType}`})
+                );
+            });
+            
+            it(`should return a function that dispatches a pending ${test.actionType} action with correct payload`, () => {
+                let scope = nock('http://example.com')
+                [test.expectedHTTPMethod](test.expectedURL, test.expectedRequestBody)
+                    .reply(200);
+                actionCreators[test.actionType](...test.actionArgs)(dispatch);
+                scope.done();
+                sinon.assert.calledWith(
+                    dispatch,
+                    sinon.match({payload: test.expectedPayload.pending})
                 );
             });
 
-            it(`should return a function that dispatches a ${actionType}_success action on success`, (done) => {
+            it(`should return a function that dispatches a ${test.actionType}_success action on success`, (done) => {
                 let scope = nock('http://example.com')
-                [VERBS[actionType]]('/endpoint')
-                    .reply(200, [{id: 1}]);
+                [test.expectedHTTPMethod](test.expectedURL, test.expectedRequestBody)
+                    .reply(200, test.response);
                 let dispatch = (action) => {
-                    if (action.type === `endpoint_${actionType}_success`) {
-                        expect(action.payload).toEqual([{id: 1}]);
+                    if (action.type === `endpoint_${test.actionType}_success`) {
                         done();
                     }
                 };
-                actionCreators[actionType]()(dispatch);
+                actionCreators[test.actionType](...test.actionArgs)(dispatch);
                 scope.done();
             });
 
-            it(`should return a function that dispatches a ${actionType}_failure action on failure`, (done) => {
+            it(`should return a function that dispatches a ${test.actionType}_success action on success with correct payload`, (done) => {
                 let scope = nock('http://example.com')
-                [VERBS[actionType]]('/endpoint')
-                    .reply(400);
+                [test.expectedHTTPMethod](test.expectedURL, test.expectedRequestBody)
+                    .reply(200, test.response);
                 let dispatch = (action) => {
-                    if (action.type === `endpoint_${actionType}_failure`) {
+                    if (action.type === `endpoint_${test.actionType}_success`) {
+                        expect(action.payload).toEqual(test.expectedPayload.success);
                         done();
                     }
                 };
-                actionCreators[actionType]()(dispatch);
+                actionCreators[test.actionType](...test.actionArgs)(dispatch);
+                scope.done();
+            });
+            
+            it(`should return a function that dispatches a ${test.actionType}_failure action on failure`, (done) => {
+                let scope = nock('http://example.com')
+                [test.expectedHTTPMethod](test.expectedURL, test.expectedRequestBody)
+                    .reply(400);
+                let dispatch = (action) => {
+                    if (action.type === `endpoint_${test.actionType}_failure`) {
+                        done();
+                    }
+                };
+                actionCreators[test.actionType](...test.actionArgs)(dispatch);
+                scope.done();
+            });
+            
+            it(`should return a function that dispatches a ${test.actionType}_failure action on failure with correct payload`, (done) => {
+                let scope = nock('http://example.com')
+                [test.expectedHTTPMethod](test.expectedURL, test.expectedRequestBody)
+                    .reply(400);
+                let dispatch = (action) => {
+                    if (action.type === `endpoint_${test.actionType}_failure`) {
+                        expect(action.payload).toEqual(test.expectedPayload.failure);
+                        done();
+                    }
+                };
+                actionCreators[test.actionType](...test.actionArgs)(dispatch);
                 scope.done();
             });
             
@@ -153,8 +238,23 @@ describe('ActionCreators', () => {
                 pendingID: 1
             });
         });
-        
-        it('should dispatch a failure action if the API request fails');
+
+        it('should dispatch a failure action if the API request fails', () => {
+            let APIRequest = sinon.stub();
+            let promise = {end: function (callback) { this.callback = callback }};
+            APIRequest.returns(promise);
+            let dispatch = sinon.stub();
+
+            let actionFunc = actionCreators._createAction('list', APIRequest, 'payload');
+            actionFunc(dispatch);
+            promise.callback.bind(null)('error');
+            
+            sinon.assert.calledWith(dispatch, {
+                type: 'endpoint_list_failure',
+                payload: 'error',
+                pendingID: 1
+            });
+        });
         
     });
 
