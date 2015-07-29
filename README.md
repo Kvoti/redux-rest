@@ -44,7 +44,7 @@ class UserList extends React.component {
     render () {
         return (
 	    <ul>
-	        {this.props.users.map(user => <li>{user.username}</li>);
+	        {this.props.users.map(user => <li>{user.username}</li>)}
             </ul>
         );
     }
@@ -125,7 +125,7 @@ On completion of the request the status is updated to ```saved``` or
 }
 ```
 
-### Availale actions
+### Available actions
 
 The standard set of REST actions is available; ```list```,
 ```retrieve```, ```create``` and ```update```.
