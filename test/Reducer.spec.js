@@ -1,11 +1,9 @@
-import expect from 'expect';
 
-import { ActionTypes, Reducer } from '../src/reduxRest';
 
-describe('Reducer', () => {
-    describe('reducer', () => {
 
-        let actionTypes = new ActionTypes('endpoint');
+state.users.items
+
+state.users.collection
 
         it('should create pending list state on list action', () => {
             let reducer = new Reducer(actionTypes).getReducer();
@@ -46,59 +44,3 @@ describe('Reducer', () => {
             });
         });
 
-        it('should append item to state on create action', () => {
-            let reducer = new Reducer(actionTypes).getReducer();
-            let action = {
-                type: actionTypes.create,
-                payload: {some: 'thing'},
-                pendingID: 1
-            }
-            let newState = reducer(undefined, action);
-            expect(newState.items.length).toEqual(1);
-            expect(newState.items[0]).toEqual({
-                // TODO split these into separate tests
-                some: 'thing',
-                pendingID: 1,
-                status: 'pending'
-            });
-        });
-
-        it('should replace item on create action success', () => {
-            let reducer = new Reducer(actionTypes).getReducer();
-            let action = {
-                type: actionTypes.create_success,
-                payload: {id: 1, some: 'thing'},
-                pendingID: 1
-            }
-            let newState = reducer(
-                {items: [{some: 'thing', pendingID: 1}]},
-                action);
-            expect(newState.items.length).toEqual(1);
-            expect(newState.items[0]).toEqual({
-                // TODO split these into separate tests
-                id: 1,
-                some: 'thing',
-                status: 'saved'
-            });
-        });
-
-        it('should set item status to failed on create action failure', () => {
-            let reducer = new Reducer(actionTypes).getReducer();
-            let action = {
-                type: actionTypes.create_failure,
-                pendingID: 1
-            }
-            let newState = reducer(
-                {items: [{some: 'thing', pendingID: 1}]},
-                action);
-            expect(newState.items.length).toEqual(1);
-            expect(newState.items[0]).toEqual({
-                // TODO split these into separate tests
-                pendingID: 1,
-                some: 'thing',
-                status: 'failed'
-            });
-        });
-        
-    });
-});

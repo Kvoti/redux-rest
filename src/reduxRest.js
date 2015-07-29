@@ -128,7 +128,7 @@ export class ActionCreators {
     }
 }
 
-export class Reducer {
+class BaseReducer {
     constructor (actionTypes) {
         this.actionTypes = actionTypes;
     }
@@ -137,17 +137,25 @@ export class Reducer {
         return this._reducer.bind(this);
     }
 
-    // TODO easier to split into separate reducers to handle the collection and the items?
-    // TODO use ImmutableJS for easier state munging
-    // TODO throw error on overlapping pending actions?
-    _reducer (state = {collection: [], items: []}, action) {
+    _getItem (state, key, value) {
+        return state.find(item => item[key] === value);
+    }
+
+    _replaceItem (state, key, value, item) {
+        let index = state.findIndex(item => item[key] === value);
+        let newState = [...state];
+        newState.splice(index, 1, item);
+        return newState;
+    }
+}
+
+export class ItemReducer extends BaseReducer {
+    
+    _reducer (state = [], action) {
         let item;
         if (action.type === this.actionTypes.create) {
             item = {...action.payload, status: itemStatus.pending, pendingID: action.pendingID};
-            return {
-                collection: state.collection,
-                items: [...state.items, item]
-            };
+            return [...state, item];
             
         } else if (action.type === this.actionTypes.create_success) {
             let item = {...action.payload, status: itemStatus.saved};
@@ -158,39 +166,25 @@ export class Reducer {
             item.status = itemStatus.failed;
             return this._replaceItem(state, 'pendingID', action.pendingID, item);
 
-        } else if (action.type === this.actionTypes.list) {
-            let newState = {
-                items: state.items
-            }
-            let metaItem = {
-                action: 'list',
-                pendingID: action.pendingID,
-                status: itemStatus.pending
-            }
-            newState.collection = [...state.collection, metaItem];
-            return newState;
+        } else if (action.type === this.actionTypes.update) {
+            let item = {...action.payload, status: itemStatus.pending};
+            // TODO shouldn't hardcode 'id' field
+            return this._replaceItem(state, 'id', item.id, item);
+
+        } else if (action.type === this.actionTypes.update_success) {
+            let item = {...action.payload, status: itemStatus.saved};
+            // TODO shouldn't hardcode 'id' field
+            return this._replaceItem(state, 'id', item.id, item);
+            
+        } else if (action.type === this.actionTypes.update_failure) {
+            let item = {...action.payload, status: itemStatus.failed};
+            // TODO shouldn't hardcode 'id' field
+            return this._replaceItem(state, 'id', item.id, item);
             
         } else if (action.type === this.actionTypes.list_success) {
-            let newItems = [...action.payload];
-            
-            
-            return 
+            return [...action.payload];
         }
 
     }
 
-    _getItem (state, key, value) {
-        return state.items.find(item => item[key] === value);
-    }
-
-    _replaceItem (state, key, value, item) {
-        let index = state.items.findIndex(item => item[key] === value);
-        let newItems = [...state.items];
-        newItems.splice(index, 1, item);
-        let newState = {
-            collection: state.collection,
-            items: newItems
-        };
-        return newState;
-    }
 }
