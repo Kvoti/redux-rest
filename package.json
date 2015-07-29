@@ -5,7 +5,8 @@
   "main": "lib/reduxRest.js",
   "scripts": {
     "build": "scripts/build",
-    "test": "scripts/test"
+    "test": "scripts/test",
+    "lint": "scripts/lint"
   },
   "repository": {
     "type": "git",
