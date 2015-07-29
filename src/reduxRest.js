@@ -128,7 +128,7 @@ export class ActionCreators {
     }
 }
 
-class Reducer {
+export class Reducer {
     constructor (actionTypes) {
         this.actionTypes = actionTypes;
     }
@@ -136,12 +136,18 @@ class Reducer {
     getReducer () {
         return this._reducer.bind(this);
     }
-    
-    _reducer (state = [], action) {
+
+    // TODO easier to split into separate reducers to handle the collection and the items?
+    // TODO use ImmutableJS for easier state munging
+    // TODO throw error on overlapping pending actions?
+    _reducer (state = {collection: [], items: []}, action) {
         let item;
         if (action.type === this.actionTypes.create) {
             item = {...action.payload, status: itemStatus.pending, pendingID: action.pendingID};
-            return [...state, item];
+            return {
+                collection: state.collection,
+                items: [...state.items, item]
+            };
             
         } else if (action.type === this.actionTypes.create_success) {
             let item = {...action.payload, status: itemStatus.saved};
@@ -152,20 +158,39 @@ class Reducer {
             item.status = itemStatus.failed;
             return this._replaceItem(state, 'pendingID', action.pendingID, item);
 
+        } else if (action.type === this.actionTypes.list) {
+            let newState = {
+                items: state.items
+            }
+            let metaItem = {
+                action: 'list',
+                pendingID: action.pendingID,
+                status: itemStatus.pending
+            }
+            newState.collection = [...state.collection, metaItem];
+            return newState;
+            
         } else if (action.type === this.actionTypes.list_success) {
-            return [...action.payload];
+            let newItems = [...action.payload];
+            
+            
+            return 
         }
-        // TODO handle rest of actionTypes!
+
     }
 
     _getItem (state, key, value) {
-        return state.find(item => item[key] === value);
+        return state.items.find(item => item[key] === value);
     }
 
     _replaceItem (state, key, value, item) {
-        let index = state.findIndex(item => item[key] === value);
-        let newState = [...state];
-        newState.splice(index, 1, item);
+        let index = state.items.findIndex(item => item[key] === value);
+        let newItems = [...state.items];
+        newItems.splice(index, 1, item);
+        let newState = {
+            collection: state.collection,
+            items: newItems
+        };
         return newState;
     }
 }
