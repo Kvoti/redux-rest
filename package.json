@@ -6,7 +6,8 @@
   "scripts": {
     "build": "scripts/build",
     "test": "scripts/test",
-    "lint": "scripts/lint"
+    "lint": "scripts/lint",
+    "test-cov": "scripts/test-cov"
   },
   "repository": {
     "type": "git",
@@ -33,6 +34,7 @@
     "eslint-config-airbnb": "0.0.6",
     "eslint-plugin-react": "^3.1.0",
     "expect": "^1.8.0",
+    "isparta": "^3.0.3",
     "mocha": "^2.2.5",
     "react": "^0.13.0",
     "redux": "^0.12.0",
