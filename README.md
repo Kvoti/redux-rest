@@ -149,11 +149,9 @@ On completion of the request the status is updated to ```saved``` or
 The standard set of REST actions is available; ```list```,
 ```retrieve```, ```create``` and ```update```.
 
-## Development
-TODO
-
 ## TODO
-
+- add `delete` action
 - add a `revert` action to revert optimistic changes if API request
 fails.
 - support APIs with custom endpoints
+- integrate normalizr for flat object storage?
