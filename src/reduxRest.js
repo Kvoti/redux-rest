@@ -5,6 +5,8 @@
 import agent from 'superagent';
 import itemStatus from './itemStatus';
 
+export { itemStatus };
+
 export class Endpoint {
   constructor(url) {
     this.url = url;
