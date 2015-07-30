@@ -57,7 +57,7 @@ class UserList extends React.component {
     );
   }
 
-  addUser() {
+  _addUser() {
     let inputNode = React.findDOMNode(this.refs.username);
     let val = inputNode.value;
     this.props.dispatch(
