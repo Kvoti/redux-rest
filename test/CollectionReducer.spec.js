@@ -7,6 +7,15 @@ describe('CollectionReducer', () => {
 
     let actionTypes = new ActionTypes('endpoint');
 
+    it('should not change the state if action is unhandled', () => {
+      let reducer = new CollectionReducer(actionTypes).getReducer();
+      let action = {
+        type: 'xxxxx'
+      };
+      let newState = reducer([], action);
+      expect(newState).toEqual([]);
+    });
+    
     it('should create pending list state on list action', () => {
       let reducer = new CollectionReducer(actionTypes).getReducer();
       let action = {

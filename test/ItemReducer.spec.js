@@ -7,6 +7,15 @@ describe('ItemReducer', () => {
 
     let actionTypes = new ActionTypes('endpoint');
 
+    it('should not change the state if action is unhandled', () => {
+      let reducer = new ItemReducer(actionTypes).getReducer();
+      let action = {
+        type: 'xxxxx'
+      };
+      let newState = reducer([], action);
+      expect(newState).toEqual([]);
+    });
+
     it('should set state to items on list action success', () => {
       let reducer = new ItemReducer(actionTypes).getReducer();
       let action = {

@@ -162,10 +162,10 @@ export class ItemReducer extends BaseReducer {
 
     } else if (action.type === this.actionTypes.list_success) {
       return [...action.payload];
+
     }
-
+    return state;
   }
-
 }
 
 export class CollectionReducer extends BaseReducer {
@@ -188,6 +188,8 @@ export class CollectionReducer extends BaseReducer {
       item = {action: 'list', status: itemStatus.failed};
       return this._replaceItem(state, 'pendingID', action.pendingID, item);
     }
+
+    return state;
   }
 }
 
