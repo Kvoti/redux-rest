@@ -26,7 +26,7 @@ export class Endpoint {
   }
 
   _getObjectURL(id) {
-    let slash;
+    let slash = '';
     if (!this.url.endsWith('/')) {
       slash = '/';
     }

@@ -5,8 +5,14 @@ import { Endpoint } from '../src/reduxRest';
 
 describe('Endpoint', () => {
   describe('#_getObjectURL()', () => {
-    it('should append the object id the the url', () => {
+    it('should append the object id to the endpoint url', () => {
       let endpoint = new Endpoint('');
+      let objectURL = endpoint._getObjectURL('obj');
+      assert.equal(objectURL, '/obj');
+    });
+
+    it('should handle the endpoint url ending in a /', () => {
+      let endpoint = new Endpoint('/');
       let objectURL = endpoint._getObjectURL('obj');
       assert.equal(objectURL, '/obj');
     });
