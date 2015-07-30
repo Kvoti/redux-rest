@@ -1,7 +1,8 @@
 /**
  * Utility class to automatically create Redux reducers for REST API endpoints.
  */
-import request from 'superagent';
+// TODO make ajax library pluggable
+import agent from 'superagent';
 import itemStatus from './itemStatus';
 
 export class Endpoint {
@@ -10,19 +11,19 @@ export class Endpoint {
   }
 
   list(params) {
-    return request.get(this.url).query(params);
+    return agent.get(this.url).query(params);
   }
 
   retrieve(id) {
-    return request.get(this._getObjectURL(id));
+    return agent.get(this._getObjectURL(id));
   }
 
   create(conf) {
-    return request.post(this.url).send(conf);
+    return this._setCRSFHeader(agent.post(this.url)).send(conf);
   }
 
   update(conf, id) {
-    return request.put(this._getObjectURL(id)).send(conf);
+    return this._setCRSFHeader(agent.put(this._getObjectURL(id))).send(conf);
   }
 
   _getObjectURL(id) {
@@ -33,6 +34,36 @@ export class Endpoint {
     return `${this.url}${slash}${id}`;
   }
 
+  _setCRSFHeader(request) {
+    // TODO this is django specific, needs to be customisable
+    if (!this._csrfSafeMethod(request.method)) {  // && !this.crossDomain) {
+      request.set('X-CSRFToken', this._getCookie('csrftoken'));
+    }
+    return request;
+  }
+
+  // Set csrf token for ajax requests
+  // See https://docs.djangoproject.com/en/dev/ref/csrf/#ajax
+  _getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      let cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        let cookie = jQuery.trim(cookies[i]);
+        // Does this cookie string begin with the name we want?
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+
+  _csrfSafeMethod(method) {
+    // these HTTP methods do not require CSRF protection
+    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+  }
 }
 
 export class ActionTypes {
