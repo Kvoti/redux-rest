@@ -1,5 +1,6 @@
 import assert from 'assert';
 import nock from 'nock';
+import sinon from 'sinon';
 
 import { Endpoint } from '../src/reduxRest';
 
@@ -59,6 +60,7 @@ describe('Endpoint', () => {
   describe('create', () => {
     it('should make a POST request to the endpoint url', (done) => {
       let endpoint = new Endpoint('http://example.com/endpoint');
+      sinon.stub(endpoint, '_setCSRFHeader', request => request);
       let scope = nock('http://example.com').post('/endpoint').reply(200);
       endpoint.create().end(() => {
         scope.done();
@@ -68,6 +70,7 @@ describe('Endpoint', () => {
 
     it('should send the object conf in the request body', (done) => {
       let endpoint = new Endpoint('http://example.com/endpoint');
+      sinon.stub(endpoint, '_setCSRFHeader', request => request);
       let scope = nock('http://example.com')
           .post('/endpoint', {id: 1})
           .reply(200);
@@ -82,6 +85,7 @@ describe('Endpoint', () => {
   describe('update', () => {
     it('should make a PUT request to the object url', (done) => {
       let endpoint = new Endpoint('http://example.com/endpoint');
+      sinon.stub(endpoint, '_setCSRFHeader', request => request);
       let scope = nock('http://example.com').put('/endpoint/obj').reply(200);
       endpoint.update({}, 'obj').end(() => {
         scope.done();
@@ -91,6 +95,7 @@ describe('Endpoint', () => {
 
     it('should send the object conf in the request body', (done) => {
       let endpoint = new Endpoint('http://example.com/endpoint');
+      sinon.stub(endpoint, '_setCSRFHeader', request => request);
       let scope = nock('http://example.com')
           .put('/endpoint/obj', {id: 1})
           .reply(200);
