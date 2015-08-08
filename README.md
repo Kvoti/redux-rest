@@ -18,6 +18,20 @@ import Flux from 'redux-rest';
 // This is a super simple app that displays a list of users from an API and
 // lets you add new users. Until a success response is recevied from the API
 // endpoint new users are show as pending.
+
+// To create a store with redux for this app all you have to do is
+// describe your API endpoints as key value pairs where the key is an
+// identifier and the value is the URL of the endpoint.
+const myAPI = {
+  users: '/api/users/'
+};
+
+// Then create a Flux instance. This automatically creates
+// action creators and reducers for each endpoint. No boilerplate!
+const flux = new Flux(myAPI);
+
+// UserApp uses the flux object to fetch the users and create new ones
+// using the automatically created action creators.
 class UserApp extends React.component {
 
   componentDidMount() {
@@ -53,18 +67,8 @@ class UserApp extends React.component {
   }
 }
 
-// To create a store with redux for this app all you have to do is
-// describe your API endpoints as key value pairs where the key is an
-// identifier and the value is the URL of the endpoint.
-const myAPI = {
-  users: '/api/users/'
-};
-
-// Then create a Flux instance. This automatically creates
-// action creators and reducers for each endpoint. No boilerplate!
-const flux = new Flux(myAPI);
-
-// Now configure redux in the usual way.
+// The flux object also has reducers to handle the standard REST actions
+// So we can configure redux and connect our UserApp to it.
 let reducers = combineReducers(flux.reducers);
 let store = createStore(reducers);
 
@@ -80,9 +84,9 @@ function select(state) {
 // Wrap UserApp to inject dispatch and state into it
 UserApp = connect(select)(UserApp);
 
-// To render UserApp we need to wrap it in redux's Provider.
 export default class App extends React.Component {
   render() {
+    // To render UserApp we need to wrap it in redux's Provider.
     return (
       <Provider store={store}>
         {() => <UserApp />}
