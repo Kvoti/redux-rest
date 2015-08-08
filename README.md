@@ -1,5 +1,7 @@
 # redux-rest
 
+## NOTE this was written against redux 0.12.0 and is in the process of being fixed to work with the soon to come redux 1.0.0 release
+
 Automatically create Flux action constants, action creators and Redux
 reducers for your REST API.
 
