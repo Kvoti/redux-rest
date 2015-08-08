@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/Kvoti/redux-rest.svg?branch=master)](https://travis-ci.org/Kvoti/redux-rest)
+
 # redux-rest
 
 ## NOTE this only works with soon-to-released redux 1.0.0-rc
