@@ -14,8 +14,8 @@ npm install git://github.com/Kvoti/redux-rest.git
 ```js
 import React from 'react';
 import { connect, Provider } from 'react-redux';
-import { createStore, combineReducers } from 'redux';
-import Flux from 'redux-rest';
+import { createStore, combineReducers, applyMiddleware } from 'redux';
+import Flux, { asyncDispatch } from 'redux-rest';
 
 // This is a super simple app that displays a list of users from an API and
 // lets you add new users. Until a success response is recevied from the API
@@ -72,7 +72,17 @@ class UserApp extends React.component {
 // The flux object also has reducers to handle the standard REST actions
 // So we can configure redux and connect our UserApp to it.
 let reducers = combineReducers(flux.reducers);
-let store = createStore(reducers);
+
+// To integrate with redux we need a middleware layer so we can do
+// async requests to the API server.
+// (Vanilla redux requires actions to be plain objects but the flux.actionCreators
+// methods return functions which launch an async request *then* dispatch the
+// corresponding action object).
+let createStoreWithMiddleware = applyMiddleware(
+  asyncDispatch
+)(createStore);
+
+let store = createStoreWithMiddleware(reducers);
 
 // Which props do we want to inject, given the global state?
 function select(state) {
