@@ -11,30 +11,14 @@ npm install git://github.com/Kvoti/redux-rest.git
 ## Example
 ```js
 import React from 'react';
-import { connect, Provider } from 'redux/react';
-import { createRedux } from 'redux';
+import { connect, Provider } from 'react-redux';
+import { createStore, combineReducers } from 'redux';
 import Flux from 'redux-rest';
 
-// Describe your API endpoints as key value pairs where the key is an
-// identifier and the value is the URL of the endpoint.
-const myAPI = {
-  users: '/api/users/'
-};
-
-// Create a Flux instance for your API. This automatically creates
-// action creators and reducers for each endpoint.
-const flux = new Flux(myAPI);
-
-// Initialise Redux
-const redux = createRedux(flux.reducers);
-
-// Connect your component to the Redux state
-@connect(state => {
-  // Each endpoint has an _items and _collection store. Here we only need
-  // the user items so we only pull out users_items.
-  return {users: state.users_items};
-})
-class UserList extends React.component {
+// This is a super simple app that displays a list of users from an API and
+// lets you add new users. Until a success response is recevied from the API
+// endpoint new users are show as pending.
+class UserApp extends React.component {
 
   componentDidMount() {
     // Request the list of users when this component mounts
@@ -69,11 +53,39 @@ class UserList extends React.component {
   }
 }
 
+// To create a store with redux for this app all you have to do is
+// describe your API endpoints as key value pairs where the key is an
+// identifier and the value is the URL of the endpoint.
+const myAPI = {
+  users: '/api/users/'
+};
+
+// Then create a Flux instance. This automatically creates
+// action creators and reducers for each endpoint. No boilerplate!
+const flux = new Flux(myAPI);
+
+// Now configure redux in the usual way.
+let reducers = combineReducers(flux.reducers);
+let store = createStore(reducers);
+
+// Which props do we want to inject, given the global state?
+function select(state) {
+  // Each endpoint has an _items and _collection reducer. Here we only need
+  // the user items so we only pull out users_items.
+  return {
+    users: state.users_items
+  };
+})
+
+// Wrap UserApp to inject dispatch and state into it
+UserApp = connect(select)(UserApp);
+
+// To render UserApp we need to wrap it in redux's Provider.
 export default class App extends React.Component {
   render() {
     return (
-      <Provider redux={redux}>
-        {() => <UserList />}
+      <Provider store={store}>
+        {() => <UserApp />}
       </Provider>
     );
   }
