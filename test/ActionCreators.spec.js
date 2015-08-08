@@ -85,6 +85,9 @@ describe('ActionCreators', () => {
         let endpoint = new Endpoint('http://example.com/endpoint');
         let types = new ActionTypes('endpoint');
         actionCreators = new ActionCreators('endpoint', endpoint, types);
+        if (test.expectedHTTPMethod === 'post' || test.expectedHTTPMethod === 'put') {
+          sinon.stub(endpoint, '_setCSRFHeader', request => request);
+        }
       });
 
       it(`should return a function that calls the ${test.actionType} API endpoint`, () => {
