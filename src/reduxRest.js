@@ -21,11 +21,11 @@ export class Endpoint {
   }
 
   create(conf) {
-    return this._setCRSFHeader(agent.post(this.url)).send(conf);
+    return this._setCSRFHeader(agent.post(this.url)).send(conf);
   }
 
   update(conf, id) {
-    return this._setCRSFHeader(agent.put(this._getObjectURL(id))).send(conf);
+    return this._setCSRFHeader(agent.put(this._getObjectURL(id))).send(conf);
   }
 
   _getObjectURL(id) {
@@ -36,7 +36,7 @@ export class Endpoint {
     return `${this.url}${slash}${id}`;
   }
 
-  _setCRSFHeader(request) {
+  _setCSRFHeader(request) {
     // TODO this is django specific, needs to be customisable
     if (!this._csrfSafeMethod(request.method)) {  // && !this.crossDomain) {
       request.set('X-CSRFToken', this._getCookie('csrftoken'));
