@@ -3,6 +3,7 @@
 # redux-rest
 
 **NOTE this only works with soon-to-be-released redux 1.0.0-rc**
+**NOTE POST/PUT requests currently tied to Django Rest Framework's CSRF handling and response content**
 
 Automatically create Flux action constants, action creators and Redux
 reducers for your REST API.
