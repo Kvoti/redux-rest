@@ -11,7 +11,7 @@ reducers for your REST API.
 
 ## Install
 ```
-npm install redux-rest@0.0.1-alpha.2
+npm install redux-rest@0.0.1-alpha.4
 ```
 
 ## Example
