@@ -1,10 +1,71 @@
 import assert from 'assert';
 import nock from 'nock';
 import sinon from 'sinon';
+import superagent from 'superagent';
 
 import { Endpoint } from '../src/reduxRest';
 
 describe('Endpoint', () => {
+  describe('#_setCSRFHeader()', () => {
+    it('should call a custom setCSRF function', () => {
+      let csrf = sinon.stub();
+      let endpoint = new Endpoint('', {setCSRF: csrf});
+      let request = 'request';
+      endpoint._setCSRFHeader(request);
+      sinon.assert.calledWith(csrf, request);
+    });
+
+    it('should set headers when withCSRF is true', () => {
+      let endpoint = new Endpoint('', {withCSRF: true});
+      sinon.stub(endpoint, '_getCookie', () => 'cookie');
+      let request = superagent.post();
+      let expectation = sinon.mock(request).expects('set').once();
+      expectation.withArgs('X-CSRFToken', 'cookie');
+      endpoint._setCSRFHeader(request);
+      expectation.verify();
+    });
+
+    it('should not set headers when withCSRF is false', () => {
+      let endpoint = new Endpoint('');
+      let request = superagent.post();
+      let expectation = sinon.mock(request).expects('set').never();
+      endpoint._setCSRFHeader(request);
+      expectation.verify();
+    });
+
+    it('should use custom CSRFHeaderName', () => {
+      let endpoint = new Endpoint('', {withCSRF: true, CSRFHeaderName: 'X-Fred'});
+      sinon.stub(endpoint, '_getCookie');
+      let request = superagent.post();
+      let expectation = sinon.mock(request).expects('set').once();
+      expectation.withArgs('X-Fred');
+      endpoint._setCSRFHeader(request);
+      expectation.verify();
+    });
+
+    it('should use custom CSRFCookieName', () => {
+      let endpoint = new Endpoint('', {withCSRF: true, CSRFCookieName: 'testcookie'});
+      let stub = sinon.stub(endpoint, '_getCookie');
+      let request = superagent.post();
+      sinon.stub(request, 'set');
+      endpoint._setCSRFHeader(request);
+      sinon.assert.calledWithExactly(stub, 'testcookie');
+    });
+
+    it('should set request headers', (done) => {
+      let scope = nock('http://example.com')
+          .matchHeader('x-csrftoken', 'token')
+          .post('/endpoint')
+          .reply(200);
+      let endpoint = new Endpoint('http://example.com/endpoint', {withCSRF: true});
+      sinon.stub(endpoint, '_getCookie', () => 'token');
+      endpoint.create().end(() => {
+        scope.done();
+        done();
+      });
+    });
+  });
+  
   describe('#_getObjectURL()', () => {
     it('should append the object id to the endpoint url', () => {
       let endpoint = new Endpoint('');

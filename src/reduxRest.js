@@ -14,7 +14,17 @@ export const asyncDispatch = store => next => action =>
 
 
 export class Endpoint {
-  constructor(url) {
+  constructor(url,
+              {
+                withCSRF = false,
+                CSRFHeaderName = 'X-CSRFToken',
+                CSRFCookieName = 'csrftoken',
+                setCSRF
+              } = {}) {
+    this.withCSRF = withCSRF;
+    this.CSRFHeaderName = CSRFHeaderName;
+    this.CSRFCookieName = CSRFCookieName;
+    this.setCSRF = setCSRF;
     this.url = url;
   }
 
@@ -43,9 +53,14 @@ export class Endpoint {
   }
 
   _setCSRFHeader(request) {
-    // TODO this is django specific, needs to be customisable
+    if (this.setCSRF) {
+      return this.setCSRF(request);
+    }
+    if (!this.withCSRF) {
+      return request;
+    }
     if (!this._csrfSafeMethod(request.method)) {  // && !this.crossDomain) {
-      request.set('X-CSRFToken', this._getCookie('csrftoken'));
+      request.set(this.CSRFHeaderName, this._getCookie(this.CSRFCookieName));
     }
     return request;
   }
@@ -233,7 +248,7 @@ export class CollectionReducer extends BaseReducer {
 }
 
 export default class Flux {
-  constructor(APIConf) {
+  constructor(APIConf, CSRFOptions) {
     this.API = {};
     this.actionTypes = {};
     this.actionCreators = {};
@@ -241,7 +256,7 @@ export default class Flux {
     for (let endpointName in APIConf) {
       if (APIConf.hasOwnProperty(endpointName)) {
         let url = APIConf[endpointName];
-        this.API[endpointName] = new Endpoint(url);
+        this.API[endpointName] = new Endpoint(url, CSRFOptions);
         this.actionTypes[endpointName] = new ActionTypes(endpointName);
         this.actionCreators[endpointName] = new ActionCreators(
           endpointName,
