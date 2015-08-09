@@ -9,7 +9,7 @@ reducers for your REST API.
 
 ## Install
 ```
-npm install git://github.com/Kvoti/redux-rest.git
+npm install redux-rest@0.0.1-alpha.2
 ```
 
 ## Example
