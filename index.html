@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>redux-rest by Kvoti</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">redux-rest</h1>
+      <h2 class="project-tagline">Automatically create Flux action constants, action creators and Redux reducers for your REST API</h2>
+      <a href="https://github.com/Kvoti/redux-rest" class="btn">View on GitHub</a>
+      <a href="https://github.com/Kvoti/redux-rest/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/Kvoti/redux-rest/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <p><a href="https://travis-ci.org/Kvoti/redux-rest"><img src="https://travis-ci.org/Kvoti/redux-rest.svg?branch=master" alt="Build Status"></a></p>
+
+<h1>
+<a id="redux-rest" class="anchor" href="#redux-rest" aria-hidden="true"><span class="octicon octicon-link"></span></a>redux-rest</h1>
+
+<p><strong>NOTE this only works with soon-to-be-released redux 1.0.0-rc</strong></p>
+
+<p><strong>NOTE POST/PUT requests currently tied to Django Rest Framework's CSRF handling and response content</strong></p>
+
+<p>Automatically create Flux action constants, action creators and Redux
+reducers for your REST API.</p>
+
+<h2>
+<a id="install" class="anchor" href="#install" aria-hidden="true"><span class="octicon octicon-link"></span></a>Install</h2>
+
+<pre><code>npm install redux-rest@0.0.1-alpha.4
+</code></pre>
+
+<h2>
+<a id="example" class="anchor" href="#example" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example</h2>
+
+<div class="highlight highlight-js"><pre><span class="pl-k">import</span> React <span class="pl-k">from</span> <span class="pl-s"><span class="pl-pds">'</span>react<span class="pl-pds">'</span></span>;
+<span class="pl-k">import</span> { connect, Provider } <span class="pl-k">from</span> <span class="pl-s"><span class="pl-pds">'</span>react-redux<span class="pl-pds">'</span></span>;
+<span class="pl-k">import</span> { createStore, combineReducers, applyMiddleware } <span class="pl-k">from</span> <span class="pl-s"><span class="pl-pds">'</span>redux<span class="pl-pds">'</span></span>;
+<span class="pl-k">import</span> Flux, { asyncDispatch } <span class="pl-k">from</span> <span class="pl-s"><span class="pl-pds">'</span>redux-rest<span class="pl-pds">'</span></span>;
+
+<span class="pl-c">// This is a super simple app that displays a list of users from an API and</span>
+<span class="pl-c">// lets you add new users. Until a success response is recevied from the API</span>
+<span class="pl-c">// endpoint new users are show as pending.</span>
+
+<span class="pl-c">// To create a store with redux for this app all you have to do is</span>
+<span class="pl-c">// describe your API endpoints as key value pairs where the key is an</span>
+<span class="pl-c">// identifier and the value is the URL of the endpoint.</span>
+<span class="pl-k">const</span> <span class="pl-c1">myAPI</span> <span class="pl-k">=</span> {
+  users<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>/api/users/<span class="pl-pds">'</span></span>
+};
+
+<span class="pl-c">// Then create a Flux instance. This automatically creates</span>
+<span class="pl-c">// action creators and reducers for each endpoint. No boilerplate!</span>
+<span class="pl-k">const</span> <span class="pl-c1">flux</span> <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-en">Flux</span>(myAPI);
+
+<span class="pl-c">// UserApp uses the flux object to fetch the users and create new ones</span>
+<span class="pl-c">// using the automatically created action creators.</span>
+<span class="pl-k">class</span> <span class="pl-en">UserApp</span> <span class="pl-k">extends</span> <span class="pl-en">React.component</span> {
+
+  <span class="pl-en">componentDidMount</span>() {
+    <span class="pl-c">// Request the list of users when this component mounts</span>
+    <span class="pl-v">this</span>.<span class="pl-c1">props</span>.<span class="pl-c1">dispatch</span>(flux.<span class="pl-c1">actionCreators</span>.<span class="pl-c1">users</span>.<span class="pl-c1">list</span>());
+  }
+
+  <span class="pl-en">render</span>() {
+    <span class="pl-k">let</span> users <span class="pl-k">=</span> <span class="pl-v">this</span>.<span class="pl-c1">props</span>.<span class="pl-c1">users</span>;
+    <span class="pl-k">let</span> pendingUsers <span class="pl-k">=</span> users.<span class="pl-c1">filter</span>(u <span class="pl-k">=&gt;</span> u.<span class="pl-c1">status</span> <span class="pl-k">===</span> <span class="pl-s"><span class="pl-pds">'</span>pending<span class="pl-pds">'</span></span>);
+    <span class="pl-k">let</span> currentUsers <span class="pl-k">=</span> users.<span class="pl-c1">filter</span>(u <span class="pl-k">=&gt;</span> u.<span class="pl-c1">status</span> <span class="pl-k">!==</span> <span class="pl-s"><span class="pl-pds">'</span>pending<span class="pl-pds">'</span></span>);
+    <span class="pl-k">return</span> (
+      <span class="pl-k">&lt;</span>div<span class="pl-k">&gt;</span>
+        {pendingUsers.<span class="pl-c1">map</span>(user <span class="pl-k">=&gt;</span> <span class="pl-k">&lt;</span>p<span class="pl-k">&gt;</span>Saving {user.<span class="pl-c1">username</span>}...<span class="pl-k">&lt;</span>/p<span class="pl-k">&gt;</span>)}
+        <span class="pl-k">&lt;</span>ul<span class="pl-k">&gt;</span>
+          {currentUsers.<span class="pl-c1">map</span>(user <span class="pl-k">=&gt;</span> <span class="pl-k">&lt;</span>li<span class="pl-k">&gt;</span>{user.<span class="pl-c1">username</span>}<span class="pl-k">&lt;</span>/li<span class="pl-k">&gt;</span>)}
+        <span class="pl-k">&lt;</span>/ul<span class="pl-k">&gt;</span>
+        <span class="pl-k">&lt;</span>input ref<span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>username<span class="pl-pds">"</span></span> placeholder<span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>Enter username<span class="pl-pds">"</span></span>/<span class="pl-k">&gt;</span>
+        <span class="pl-k">&lt;</span>input type<span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>submit<span class="pl-pds">"</span></span> value<span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>Add user<span class="pl-pds">"</span></span> onClick<span class="pl-k">=</span>{<span class="pl-v">this</span>.<span class="pl-c1">_addUser</span>}/<span class="pl-k">&gt;</span>
+      <span class="pl-k">&lt;</span>/div<span class="pl-k">&gt;</span>
+    );
+  }
+
+  <span class="pl-en">_addUser</span>() {
+    <span class="pl-k">let</span> inputNode <span class="pl-k">=</span> React.<span class="pl-c1">findDOMNode</span>(<span class="pl-v">this</span>.<span class="pl-c1">refs</span>.<span class="pl-c1">username</span>);
+    <span class="pl-k">let</span> val <span class="pl-k">=</span> inputNode.<span class="pl-c1">value</span>;
+    <span class="pl-v">this</span>.<span class="pl-c1">props</span>.<span class="pl-c1">dispatch</span>(
+      flux.<span class="pl-c1">actionCreators</span>.<span class="pl-c1">users</span>.<span class="pl-c1">create</span>(
+        {username<span class="pl-k">:</span> val}
+      )
+    );
+    inputNode.<span class="pl-c1">val</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">'</span><span class="pl-pds">'</span></span>;
+  }
+}
+
+<span class="pl-c">// The flux object also has reducers to handle the standard REST actions</span>
+<span class="pl-c">// So we can configure redux and connect our UserApp to it.</span>
+<span class="pl-k">let</span> reducers <span class="pl-k">=</span> <span class="pl-c1">combineReducers</span>(flux.<span class="pl-c1">reducers</span>);
+
+<span class="pl-c">// To integrate with redux we need a middleware layer so we can do</span>
+<span class="pl-c">// async requests to the API server.</span>
+<span class="pl-c">// (Vanilla redux requires actions to be plain objects but the flux.actionCreators</span>
+<span class="pl-c">// methods return functions which launch an async request *then* dispatch the</span>
+<span class="pl-c">// corresponding action object).</span>
+<span class="pl-k">let</span> createStoreWithMiddleware <span class="pl-k">=</span> <span class="pl-c1">applyMiddleware</span>(
+  asyncDispatch
+)(createStore);
+
+<span class="pl-k">let</span> store <span class="pl-k">=</span> <span class="pl-c1">createStoreWithMiddleware</span>(reducers);
+
+<span class="pl-c">// Which props do we want to inject, given the global state?</span>
+<span class="pl-k">function</span> <span class="pl-en">select</span>(<span class="pl-smi">state</span>) {
+  <span class="pl-c">// Each endpoint has an _items and _collection reducer. Here we only need</span>
+  <span class="pl-c">// the user items so we only pull out users_items.</span>
+  <span class="pl-k">return</span> {
+    users<span class="pl-k">:</span> state.<span class="pl-c1">users_items</span>
+  };
+})
+
+<span class="pl-c">// Wrap UserApp to inject dispatch and state into it</span>
+UserApp <span class="pl-k">=</span> <span class="pl-c1">connect</span>(select)(UserApp);
+
+<span class="pl-k">export</span> <span class="pl-k">default</span> <span class="pl-k">class</span> <span class="pl-en">App</span> <span class="pl-k">extends</span> <span class="pl-en">React.Component</span> {
+  <span class="pl-en">render</span>() {
+    <span class="pl-c">// To render UserApp we need to wrap it in redux's Provider.</span>
+    <span class="pl-k">return</span> (
+      <span class="pl-k">&lt;</span>Provider store<span class="pl-k">=</span>{store}<span class="pl-k">&gt;</span>
+        {()<span class="pl-k"> =&gt;</span> <span class="pl-k">&lt;</span>UserApp /<span class="pl-k">&gt;</span>}
+      <span class="pl-k">&lt;</span>/Provider<span class="pl-k">&gt;</span>
+    );
+  }
+}</pre></div>
+
+<h2>
+<a id="what-is-the-flux-object" class="anchor" href="#what-is-the-flux-object" aria-hidden="true"><span class="octicon octicon-link"></span></a>What is the Flux object?</h2>
+
+<p>The Flux object encapsulates common patterns when dealing with REST APIs.</p>
+
+<p>When created with a description of your API you can call all the actions you'd
+expect and there are reducers that automatically handle those actions, including
+'pending', 'success' and 'failure' states.</p>
+
+<div class="highlight highlight-js"><pre><span class="pl-k">import</span> Flux <span class="pl-k">from</span> <span class="pl-s"><span class="pl-pds">'</span>redux-rest<span class="pl-pds">'</span></span>;
+
+<span class="pl-k">const</span> <span class="pl-c1">myAPI</span> <span class="pl-k">=</span> {
+    users<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>/api/users/<span class="pl-pds">'</span></span>,
+}      
+
+<span class="pl-k">const</span> <span class="pl-c1">flux</span> <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-en">Flux</span>(myAPI);</pre></div>
+
+<p>This creates a pair of reducers for each API endpoint; a <em>collection</em>
+reducer to handle actions at the collection level and and <em>item</em>
+reducer to handle actions on individual items.</p>
+
+<pre><code>TODO not sure about the item/collection stuff. Needs a rethink.
+</code></pre>
+
+<p>Calling actions is as simple as</p>
+
+<div class="highlight highlight-js"><pre>flux.<span class="pl-c1">actionCreators</span>.<span class="pl-c1">users</span>.<span class="pl-c1">create</span>(userData);</pre></div>
+
+<h3>
+<a id="status-of-api-requests" class="anchor" href="#status-of-api-requests" aria-hidden="true"><span class="octicon octicon-link"></span></a>Status of API requests</h3>
+
+<p>Each action creator triggers an API request and immediately dispatches
+an action so the UI can reflect the change straight away. During the
+request the state change is marked as pending. For example, creating a
+new object,</p>
+
+<div class="highlight highlight-js"><pre>flux.<span class="pl-c1">actionCreators</span>.<span class="pl-c1">users</span>.<span class="pl-c1">create</span>({username<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>mark<span class="pl-pds">'</span></span>});</pre></div>
+
+<p>will add,</p>
+
+<div class="highlight highlight-js"><pre>{
+    username<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>mark<span class="pl-pds">'</span></span>,
+    status<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>pending<span class="pl-pds">'</span></span>
+}</pre></div>
+
+<p>to the state.</p>
+
+<pre><code>TODO what if 'status' is already a field of user?
+</code></pre>
+
+<p>On completion of the request the status is updated to <code>saved</code> or
+<code>failed</code> as appropriate. E.g.</p>
+
+<div class="highlight highlight-js"><pre>{
+    username<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>mark<span class="pl-pds">'</span></span>,
+    status<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>saved<span class="pl-pds">'</span></span>
+}</pre></div>
+
+<h3>
+<a id="available-actions" class="anchor" href="#available-actions" aria-hidden="true"><span class="octicon octicon-link"></span></a>Available actions</h3>
+
+<p>The standard set of REST actions is available; <code>list</code>,
+<code>retrieve</code>, <code>create</code> and <code>update</code>.</p>
+
+<h2>
+<a id="todo" class="anchor" href="#todo" aria-hidden="true"><span class="octicon octicon-link"></span></a>TODO</h2>
+
+<ul>
+<li>add <code>delete</code> action</li>
+<li>add a <code>revert</code> action to revert optimistic changes if API request
+fails.</li>
+<li>support APIs with custom endpoints</li>
+<li>integrate normalizr for flat object storage?</li>
+</ul>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/Kvoti/redux-rest">redux-rest</a> is maintained by <a href="https://github.com/Kvoti">Kvoti</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>
