@@ -2,7 +2,7 @@
 
 # redux-rest
 
-**NOTE this only works with soon-to-be-released redux 1.0.0-rc**
+**NOTE this requires redux 1.0.0-rc or above**
 
 **NOTE POST/PUT requests currently tied to Django Rest Framework's CSRF handling and response content**
 
@@ -11,7 +11,7 @@ reducers for your REST API.
 
 ## Install
 ```
-npm install redux-rest@0.0.1-alpha.4
+npm install redux-rest
 ```
 
 ## Example
