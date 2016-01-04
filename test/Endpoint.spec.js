@@ -18,7 +18,7 @@ describe('Endpoint', () => {
     it('should set headers when withCSRF is true', () => {
       let endpoint = new Endpoint('', {withCSRF: true});
       sinon.stub(endpoint, '_getCookie', () => 'cookie');
-      let request = superagent.post();
+      let request = superagent.post('');
       let expectation = sinon.mock(request).expects('set').once();
       expectation.withArgs('X-CSRFToken', 'cookie');
       endpoint._setCSRFHeader(request);
@@ -27,7 +27,7 @@ describe('Endpoint', () => {
 
     it('should not set headers when withCSRF is false', () => {
       let endpoint = new Endpoint('');
-      let request = superagent.post();
+      let request = superagent.post('');
       let expectation = sinon.mock(request).expects('set').never();
       endpoint._setCSRFHeader(request);
       expectation.verify();
@@ -36,7 +36,7 @@ describe('Endpoint', () => {
     it('should use custom CSRFHeaderName', () => {
       let endpoint = new Endpoint('', {withCSRF: true, CSRFHeaderName: 'X-Fred'});
       sinon.stub(endpoint, '_getCookie');
-      let request = superagent.post();
+      let request = superagent.post('');
       let expectation = sinon.mock(request).expects('set').once();
       expectation.withArgs('X-Fred');
       endpoint._setCSRFHeader(request);
@@ -46,7 +46,7 @@ describe('Endpoint', () => {
     it('should use custom CSRFCookieName', () => {
       let endpoint = new Endpoint('', {withCSRF: true, CSRFCookieName: 'testcookie'});
       let stub = sinon.stub(endpoint, '_getCookie');
-      let request = superagent.post();
+      let request = superagent.post('');
       sinon.stub(request, 'set');
       endpoint._setCSRFHeader(request);
       sinon.assert.calledWithExactly(stub, 'testcookie');
