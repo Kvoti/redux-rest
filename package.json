@@ -1,6 +1,6 @@
 {
   "name": "redux-rest",
-  "version": "0.0.1-alpha.5",
+  "version": "0.0.1-alpha.6",
   "description": "Automatically create Flux action constants, action creators and Redux reducers for your REST API",
   "main": "lib/reduxRest.js",
   "scripts": {
