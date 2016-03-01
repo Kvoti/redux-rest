@@ -15,6 +15,17 @@ describe('Endpoint', () => {
       sinon.assert.calledWith(csrf, request);
     });
 
+    it('should be able to set headers from custom function', () => {
+      const custom = (request) => {
+        request.set('X-Custom', '1');
+        return request;
+      };
+      let endpoint = new Endpoint('', {setCSRF: custom});
+      let request = superagent.post('');
+      let expectation = sinon.mock(request).expects('set').once();
+      expectation.withArgs('X-Custom', '1');
+    });
+    
     it('should set headers when withCSRF is true', () => {
       let endpoint = new Endpoint('', {withCSRF: true});
       sinon.stub(endpoint, '_getCookie', () => 'cookie');
