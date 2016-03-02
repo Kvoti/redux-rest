@@ -26,6 +26,7 @@
   },
   "homepage": "https://github.com/Kvoti/redux-rest",
   "devDependencies": {
+    "babel-cli": "^6.6.0",
     "babel-core": "^6.0.0",
     "babel-eslint": "^4.0.5",
     "babel-loader": "^6.1.0",
