@@ -19,31 +19,39 @@ export class Endpoint {
                 withCSRF = false,
                 CSRFHeaderName = 'X-CSRFToken',
                 CSRFCookieName = 'csrftoken',
-                setCSRF
+                setHeaders
               } = {}) {
     this.withCSRF = withCSRF;
     this.CSRFHeaderName = CSRFHeaderName;
     this.CSRFCookieName = CSRFCookieName;
-    this.setCSRF = setCSRF;
+    this.setHeaders = setHeaders;
     this.url = url;
   }
 
   list(params) {
-    return agent.get(this.url).query(params);
+    return this._prepareRequest(agent.get(this.url)).query(params);
   }
 
   retrieve(id) {
-    return agent.get(this._getObjectURL(id));
+    return this._prepareRequest(agent.get(this._getObjectURL(id)));
   }
 
   create(conf) {
-    return this._setCSRFHeader(agent.post(this.url)).send(conf);
+    return this._prepareRequest(agent.post(this.url)).send(conf);
   }
 
   update(conf, id) {
-    return this._setCSRFHeader(agent.put(this._getObjectURL(id))).send(conf);
+    return this._prepareRequest(agent.put(this._getObjectURL(id))).send(conf);
   }
 
+  _prepareRequest(request) {
+    if (this.setHeaders) {
+      request = this.setHeaders(request);
+    }
+    request = this._setCSRFHeader(request);
+    return request;
+  }
+  
   _getObjectURL(id) {
     let slash = '';
     if (!this.url.endsWith('/')) {
@@ -53,9 +61,6 @@ export class Endpoint {
   }
 
   _setCSRFHeader(request) {
-    if (this.setCSRF) {
-      return this.setCSRF(request);
-    }
     if (!this.withCSRF) {
       return request;
     }
@@ -215,8 +220,10 @@ export class ItemReducer extends BaseReducer {
       return this._replaceItem(state, 'id', item.id, item);
 
     } else if (action.type === this.actionTypes.list_success) {
-      return [...action.payload];
-
+      if (Array.isArray(action.payload)){
+        return [...action.payload];  
+      }
+      return action.payload;
     }
     return state;
   }
