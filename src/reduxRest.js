@@ -4,6 +4,7 @@
 // TODO make ajax library pluggable
 import agent from 'superagent';
 import itemStatus from './itemStatus';
+import 'core-js/fn/array/find-index';
 
 export { itemStatus };
 
