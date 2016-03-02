@@ -5,6 +5,7 @@
 import agent from 'superagent';
 import itemStatus from './itemStatus';
 import 'core-js/fn/array/find-index';
+import 'core-js/fn/array/find';
 
 export { itemStatus };
 
