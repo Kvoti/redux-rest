@@ -125,5 +125,53 @@ describe('ItemReducer', () => {
       });
     });
 
+    it('should mark item pending while retrieving', () => {
+      let reducer = new ItemReducer(actionTypes).getReducer();
+      let action = {
+        type: actionTypes.retrieve,
+        payload: {id: 1, some: 'other'}
+      };
+      let newState = reducer([], action);
+      expect(newState.length).toEqual(1);
+      expect(newState[0]).toEqual({
+        // TODO split these into separate tests
+        id: 1,
+        some: 'other',
+        status: 'pending'
+      });
+    });
+
+    it('should mark item failed if not retrieved', () => {
+      let reducer = new ItemReducer(actionTypes).getReducer();
+      let action = {
+        type: actionTypes.retrieve_failure,
+        payload: {id: 1, some: 'other'}
+      };
+      let newState = reducer([], action);
+      expect(newState.length).toEqual(1);
+      expect(newState[0]).toEqual({
+        // TODO split these into separate tests
+        id: 1,
+        some: 'other',
+        status: 'failed'
+      });
+    });
+
+    it('should mark item saved if retrieved', () => {
+      // TODO 'loaded' status instead of 'saved'?
+      let reducer = new ItemReducer(actionTypes).getReducer();
+      let action = {
+        type: actionTypes.retrieve_success,
+        payload: {id: 1, some: 'other'}
+      };
+      let newState = reducer([], action);
+      expect(newState.length).toEqual(1);
+      expect(newState[0]).toEqual({
+        // TODO split these into separate tests
+        id: 1,
+        some: 'other',
+        status: 'saved'
+      });
+    });
   });
 });
