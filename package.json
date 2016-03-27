@@ -1,6 +1,6 @@
 {
   "name": "redux-rest",
-  "version": "0.0.1-alpha.8",
+  "version": "0.0.1-alpha.9",
   "description": "Create Redux action constants, action creators and reducers for your REST API with no boilerplate.",
   "main": "lib/reduxRest.js",
   "scripts": {
