@@ -6,8 +6,8 @@
 
 **NOTE POST/PUT requests currently tied to Django Rest Framework's CSRF handling and response content**
 
-Automatically create Flux action constants, action creators and Redux
-reducers for your REST API.
+Create Redux action constants, action creators and reducers for your
+REST API with no boilerplate.
 
 ## Install
 ```
@@ -19,7 +19,9 @@ npm install redux-rest
 import React from 'react';
 import { connect, Provider } from 'react-redux';
 import { createStore, combineReducers, applyMiddleware } from 'redux';
-import Flux, { asyncDispatch } from 'redux-rest';
+import thunkMiddleware from 'redux-thunk';
+import API from 'redux-rest';
+
 
 // This is a super simple app that displays a list of users from an API and
 // lets you add new users. Until a success response is recevied from the API
@@ -32,17 +34,17 @@ const myAPI = {
   users: '/api/users/'
 };
 
-// Then create a Flux instance. This automatically creates
+// Then create an API instance. This automatically creates
 // action creators and reducers for each endpoint. No boilerplate!
-const flux = new Flux(myAPI);
+const api = new API(myAPI);
 
-// UserApp uses the flux object to fetch the users and create new ones
+// UserApp uses the api object to fetch the users and create new ones
 // using the automatically created action creators.
 class UserApp extends React.component {
 
   componentDidMount() {
     // Request the list of users when this component mounts
-    this.props.dispatch(flux.actionCreators.users.list());
+    this.props.dispatch(api.actionCreators.users.list());
   }
 
   render() {
@@ -65,7 +67,7 @@ class UserApp extends React.component {
     let inputNode = React.findDOMNode(this.refs.username);
     let val = inputNode.value;
     this.props.dispatch(
-      flux.actionCreators.users.create(
+      api.actionCreators.users.create(
         {username: val}
       )
     );
@@ -73,17 +75,14 @@ class UserApp extends React.component {
   }
 }
 
-// The flux object also has reducers to handle the standard REST actions
+// The api object also has reducers to handle the standard REST actions
 // So we can configure redux and connect our UserApp to it.
-let reducers = combineReducers(flux.reducers);
+let reducers = combineReducers(api.reducers);
 
-// To integrate with redux we need a middleware layer so we can do
-// async requests to the API server.
-// (Vanilla redux requires actions to be plain objects but the flux.actionCreators
-// methods return functions which launch an async request *then* dispatch the
-// corresponding action object).
+// To integrate with redux we require the thunk middleware to handle
+// action creators that return functions.
 let createStoreWithMiddleware = applyMiddleware(
-  asyncDispatch
+  thunkMiddleware
 )(createStore);
 
 let store = createStoreWithMiddleware(reducers);
@@ -112,22 +111,22 @@ export default class App extends React.Component {
 }
 ```
 
-## What is the Flux object?
+## What is the api object?
 
-The Flux object encapsulates common patterns when dealing with REST APIs.
+The api object encapsulates common patterns when dealing with REST APIs.
 
 When created with a description of your API you can call all the actions you'd
 expect and there are reducers that automatically handle those actions, including
 'pending', 'success' and 'failure' states.
 
 ```js
-import Flux from 'redux-rest';
+import API from 'redux-rest';
 
 const myAPI = {
     users: '/api/users/',
 }	   
 
-const flux = new Flux(myAPI);
+const api = new API(myAPI);
 ```
 
 This creates a pair of reducers for each API endpoint; a _collection_
@@ -139,7 +138,7 @@ reducer to handle actions on individual items.
 Calling actions is as simple as
 
 ```js 
-flux.actionCreators.users.create(userData);
+api.actionCreators.users.create(userData);
 ```
 
 ### Status of API requests
@@ -150,7 +149,7 @@ request the state change is marked as pending. For example, creating a
 new object,
 
 ```js
-flux.actionCreators.users.create({username: 'mark'});
+api.actionCreators.users.create({username: 'mark'});
 ```
 
 will add,

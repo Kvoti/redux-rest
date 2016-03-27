@@ -269,7 +269,7 @@ export class CollectionReducer extends BaseReducer {
   }
 }
 
-export default class Flux {
+export default class API {
   constructor(APIConf, CSRFOptions) {
     this.API = {};
     this.actionTypes = {};

@@ -1,19 +1,20 @@
 import { createStore, combineReducers, applyMiddleware } from 'redux';
+import thunkMiddleware from 'redux-thunk';
 import expect from 'expect';
 import nock from 'nock';
 
-import Flux, { asyncDispatch } from '../src/reduxRest';
+import API from '../src/reduxRest';
 
-describe('Flux', () => {
+describe('API', () => {
   it('should integrate with redux', () => {
     const myAPI = {
       users: 'http://example.com/api/users/'
     };
-    const flux = new Flux(myAPI);
-    const reducers = combineReducers(flux.reducers);
+    const api = new API(myAPI);
+    const reducers = combineReducers(api.reducers);
 
     let createStoreWithMiddleware = applyMiddleware(
-      asyncDispatch
+      thunkMiddleware
     )(createStore);
     const store = createStoreWithMiddleware(reducers);
     let scope = nock('http://example.com')
@@ -23,7 +24,7 @@ describe('Flux', () => {
         }]);
     store.dispatch(
       d => {
-        flux.actionCreators.users.list()(d).end(() => {
+        api.actionCreators.users.list()(d).end(() => {
           expect(store.getState()).toBe([{username: 'mark'}]);
           scope.done();
         });

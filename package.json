@@ -1,7 +1,7 @@
 {
   "name": "redux-rest",
   "version": "0.0.1-alpha.8",
-  "description": "Automatically create Flux action constants, action creators and Redux reducers for your REST API",
+  "description": "Create Redux action constants, action creators and reducers for your REST API with no boilerplate.",
   "main": "lib/reduxRest.js",
   "scripts": {
     "build": "scripts/build",
@@ -54,6 +54,7 @@
     "superagent": "^1.2.0"
   },
   "peerDependencies": {
-    "redux": ">=1.0.0-rc"
+    "redux": ">=1.0.0-rc",
+    "redux-thunk": ">=1.0.0"
   }
 }
