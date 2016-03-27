@@ -4,6 +4,8 @@
 // TODO make ajax library pluggable
 import agent from 'superagent';
 import itemStatus from './itemStatus';
+import 'core-js/fn/array/find-index';
+import 'core-js/fn/array/find';
 
 export { itemStatus };
 
@@ -19,31 +21,39 @@ export class Endpoint {
                 withCSRF = false,
                 CSRFHeaderName = 'X-CSRFToken',
                 CSRFCookieName = 'csrftoken',
-                setCSRF
+                setHeaders
               } = {}) {
     this.withCSRF = withCSRF;
     this.CSRFHeaderName = CSRFHeaderName;
     this.CSRFCookieName = CSRFCookieName;
-    this.setCSRF = setCSRF;
+    this.setHeaders = setHeaders;
     this.url = url;
   }
 
   list(params) {
-    return agent.get(this.url).query(params);
+    return this._prepareRequest(agent.get(this.url)).query(params);
   }
 
   retrieve(id) {
-    return agent.get(this._getObjectURL(id));
+    return this._prepareRequest(agent.get(this._getObjectURL(id)));
   }
 
   create(conf) {
-    return this._setCSRFHeader(agent.post(this.url)).send(conf);
+    return this._prepareRequest(agent.post(this.url)).send(conf);
   }
 
   update(conf, id) {
-    return this._setCSRFHeader(agent.put(this._getObjectURL(id))).send(conf);
+    return this._prepareRequest(agent.put(this._getObjectURL(id))).send(conf);
   }
 
+  _prepareRequest(request) {
+    if (this.setHeaders) {
+      request = this.setHeaders(request);
+    }
+    request = this._setCSRFHeader(request);
+    return request;
+  }
+  
   _getObjectURL(id) {
     let slash = '';
     if (!this.url.endsWith('/')) {
@@ -53,9 +63,6 @@ export class Endpoint {
   }
 
   _setCSRFHeader(request) {
-    if (this.setCSRF) {
-      return this.setCSRF(request);
-    }
     if (!this.withCSRF) {
       return request;
     }

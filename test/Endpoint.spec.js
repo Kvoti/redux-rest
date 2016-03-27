@@ -7,20 +7,20 @@ import { Endpoint } from '../src/reduxRest';
 
 describe('Endpoint', () => {
   describe('#_setCSRFHeader()', () => {
-    it('should call a custom setCSRF function', () => {
-      let csrf = sinon.stub();
-      let endpoint = new Endpoint('', {setCSRF: csrf});
-      let request = 'request';
-      endpoint._setCSRFHeader(request);
-      sinon.assert.calledWith(csrf, request);
-    });
+    // it('should call a custom setCSRF function', () => {
+    //   let csrf = sinon.stub();
+    //   let endpoint = new Endpoint('', {setCSRF: csrf});
+    //   let request = 'request';
+    //   endpoint._setCSRFHeader(request);
+    //   sinon.assert.calledWith(csrf, request);
+    // });
 
     it('should be able to set headers from custom function', () => {
       const custom = (request) => {
         request.set('X-Custom', '1');
         return request;
       };
-      let endpoint = new Endpoint('', {setCSRF: custom});
+      let endpoint = new Endpoint('', {setHeaders: custom});
       let request = superagent.post('');
       let expectation = sinon.mock(request).expects('set').once();
       expectation.withArgs('X-Custom', '1');
